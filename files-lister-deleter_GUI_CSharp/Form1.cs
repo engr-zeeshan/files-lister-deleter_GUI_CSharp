@@ -93,5 +93,14 @@ namespace files_lister_deleter_GUI_CSharp
             // call the function to trace from the root folder again for given extension of files
             traceFiles(path, ext);
         }
+
+        private void btn_browser_Click(object sender, EventArgs e)
+        {
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.OK) {
+                path = folderBrowserDialog1.SelectedPath;
+                text_box_path.Text = path;
+            }
+        }
     }
 }
