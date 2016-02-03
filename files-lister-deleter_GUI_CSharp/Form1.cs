@@ -20,7 +20,11 @@ namespace files_lister_deleter_GUI_CSharp
 
         string path = "";
         string ext = "";
-
+        
+        /* 
+         * replacePathString(string[])
+         * function responsible for replacing user provided path by empty string
+         */
         private string[] replacePathString(string[] rootDir)
         {
             for (int i = 0; i < rootDir.Length; i++)
@@ -41,17 +45,17 @@ namespace files_lister_deleter_GUI_CSharp
 
             string[] files;
             string[] dirs;
-
-            files = Directory.GetFiles(@"" + rootDir, "*." + extension);
-
-            // replace the path
+    
+            files = Directory.GetFiles(rootDir, "*." + extension);
+            
+            // call replacePathString function to replace the path
             files = replacePathString(files);
 
             // populate the checkedlistbox1
             checkedListBox1.Items.AddRange(files);
 
             // check for sub directories
-            dirs = Directory.GetDirectories(@"" + rootDir);
+            dirs = Directory.GetDirectories(rootDir);
 
             // if sub-directories are found, search for files in those too
             if (dirs.Length != 0)
@@ -71,10 +75,33 @@ namespace files_lister_deleter_GUI_CSharp
 
             // get path provided by user in text box
             path = text_box_path.Text;
-
             // get extension provided by user in text box
             ext = text_box_extension.Text;
-
+            
+            // display message box if path or extension is empty
+            if (path == "" || ext == "") {
+                MessageBox.Show("Please provide both path and extension","Required Info",
+                    MessageBoxButtons.OK,MessageBoxIcon.Information);
+                return;
+            }
+            
+            //check for exception of path provided by user
+            try
+            {
+                Directory.GetDirectories(path);
+            }
+            catch (Exception ex)
+            {
+                if (ex is DirectoryNotFoundException)
+                    MessageBox.Show("Path not found");
+                else if (ex is UnauthorizedAccessException)
+                    MessageBox.Show("Unauthorized access");
+                else if (ex is IOException)
+                    MessageBox.Show("IO Exception");
+                else
+                    throw;
+                return;
+            }
             // call the function to trace root folder for given extension of files
             traceFiles(path, ext);
         }
@@ -84,6 +111,7 @@ namespace files_lister_deleter_GUI_CSharp
             // delete each file selected by user
             foreach (object itemChecked in checkedListBox1.CheckedItems)
             {
+                //add path with itemChekced to complete the path that was replace earlier
                 File.Delete(path + (string)itemChecked);
             }
 
